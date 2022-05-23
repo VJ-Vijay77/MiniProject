@@ -21,6 +21,8 @@ func main() {
 	route.GET("/signup", routes.Signup)
 	route.POST("/signup", routes.PostSignup)
 	route.GET("/admin", routes.Admin)
+	route.POST("/admin", routes.PostAdmin)
+	route.GET("/wadmin", routes.Wadmin)
 	route.GET("/home", routes.Home)
 	route.Run(":8080")
 

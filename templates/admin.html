@@ -366,15 +366,15 @@
 
 
     <div class="login-box">
-      <br><br>
+      <br><br><br>
         <h2>Login</h2>
-        <form>
+        <form action="/admin" method="post">
           <div class="user-box">
-            <input type="text" name="" required="">
+            <input type="text" name="username" required>
             <label>Username</label>
           </div>
           <div class="user-box">
-            <input type="password" name="" required="">
+            <input type="password" name="password" required>
             <label>Password</label>
           </div>
           <a href="#">
@@ -384,8 +384,8 @@
             <span></span>
            <input type="submit" class="submitdata btn btn-dark" name="">        
           </a><br><br>
-          <a href="/signup" class="adminredirect">SignUp</a>
-          <a href="/login" class="adminredirect">LoginPage</a>
+       
+          <a href="/login" class="adminredirect">LoginPage</a> <p style="color:yellow;"> Not an Admin?Login here</p>
         </form>
       </div>
 

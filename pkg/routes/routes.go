@@ -68,14 +68,67 @@ func Signup(c *gin.Context) {
 }
 
 func PostSignup(c *gin.Context) {
-	c.HTML(http.StatusOK, "signup.html", nil)
-}
+	var user []Users
+	var status bool = true
+	Fname := c.Request.FormValue("name")
+	FusernameN := c.Request.FormValue("username")
+	Fpassword := c.Request.FormValue("password")
+
+	//database things
+	db:= database.InitDB()
+	db.AutoMigrate(&Users{})
+	db.Find(&user)
+
+	for _,i := range user{
+		if i.Username == FusernameN{
+			status=false
+			break
+		}
+	}
+
+	if !status{
+		dialog.Alert("hello %s , The username is already taken",Fname)
+			c.Redirect(303,"/signup")
+			return
+		
+		}
+
+
+			db.Create(&Users{Username: FusernameN,Password: Fpassword})
+			dialog.Alert("Hey %s, Your account is successfully created. Click OK to LOGIN!",Fname)
+			c.Redirect(http.StatusSeeOther,"/login")
+			
+		}
+	
+	//database things end
+
+	
+
 
 
 
 
 func Admin(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin.html", nil)
+}
+
+
+func PostAdmin(c *gin.Context) {
+	Fusername := c.Request.FormValue("username")
+	Fpassword := c.Request.FormValue("password")
+
+	if Fusername != "adminvijay" || Fpassword != "12345"{
+		dialog.Alert("Wrong Username or Password , Check Again!")
+		c.Redirect(303,"/admin")
+		return
+	}
+
+	c.Redirect(303,"/wadmin")
+
+}
+
+func Wadmin(c *gin.Context){
+	c.HTML(http.StatusOK, "welcomeadmin.html", nil)
 }
 
 
