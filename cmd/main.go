@@ -24,6 +24,12 @@ func main() {
 	route.POST("/admin", routes.PostAdmin)
 	route.GET("/wadmin", routes.Wadmin)
 	route.GET("/home", routes.Home)
+	route.GET("/delete/:name",routes.DeleteUser)
+	route.POST("/update/:name",routes.UpdateUser)
+	route.POST("/create",routes.CreateUser)
+	
+	
+
 	route.Run(":8080")
 
 }
