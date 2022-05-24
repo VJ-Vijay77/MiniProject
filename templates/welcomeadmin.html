@@ -18,7 +18,7 @@
           <div class="cola" id="navbarSupportedContent">
             
             <form class="d-flex">
-              <button class="btn btn-primary" type="submit"><a href="/admin" style="text-decoration: none;color:white;"> Logout</a></button>
+              <button class="btn btn-primary" type="submit"><a href="/logoutadmin" style="text-decoration: none;color:white;"> Logout</a></button>
             </form>
           </div>
         </div>
@@ -46,6 +46,7 @@
        
         
            {{range $index,$value := .users}}
+           {{if .}}
           <tr>
             <th scope="row">{{$index}}</th>
             <td>{{.}}</td>
@@ -55,7 +56,7 @@
              <input type="text" name="updatedata" value="{{.}}">   
             <button type="submit"> Update</button>
             </form></td>           
-        </tr>
+        </tr>{{end}}
           {{end}}
 
       

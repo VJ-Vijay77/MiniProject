@@ -6,9 +6,12 @@ import (
 	"github.com/VJ-Vijay77/miniProject/pkg/database"
 	"github.com/gin-gonic/gin"
 	"tawesoft.co.uk/go/dialog"
+	"github.com/gorilla/sessions"
 
-	uuid "github.com/satori/go.uuid"
+	//uuid "github.com/satori/go.uuid"
 )
+
+var Store = sessions.NewCookieStore([]byte("secret"))
 
 type Users struct {
 	ID       int
@@ -16,12 +19,20 @@ type Users struct {
 	Password string
 }
 
+
+
 func Login(c *gin.Context) {
+	ok := UserLoged(c)
+	if ok{
+		c.Redirect(303,"/home")
+		return
+	}
 
 	c.HTML(http.StatusOK, "login.html", nil)
 }
 
 func PostLogin(c *gin.Context) {
+
 	var user []Users
 	var status bool
 	Fusername := c.Request.FormValue("username")
@@ -31,8 +42,10 @@ func PostLogin(c *gin.Context) {
 	db := database.InitDB()
 	//	db.AutoMigrate(&Users{})
 	db.Find(&user)
+	var userID string
 	for _, i := range user {
 		if i.Username == Fusername && i.Password == Fpassword {
+			userID = i.Username
 			status = true
 			break
 		}
@@ -49,13 +62,24 @@ func PostLogin(c *gin.Context) {
 		return
 	}
 
-	cookie, err := c.Request.Cookie("session")
-	if err != nil {
-		uuid := uuid.NewV4()
-		c.SetCookie("session", uuid.String(), 300, "/", "localhost", false, false)
-	}
-	_ = cookie
-	c.Redirect(http.StatusSeeOther, "/home")
+	//sessin manager
+	// var secretValue string
+	// cookie, err := c.Request.Cookie("session")
+	// if err != nil {
+	// 	uuid := uuid.NewV4()
+	// 	secretValue = uuid.String()
+	// 	c.SetCookie("session", secretValue, 300, "/", "localhost", false, false)
+	// }
+	
+	// _ = cookie
+	// c.Redirect(http.StatusSeeOther, "/home")
+		
+		
+	session,_ := Store.Get(c.Request,"session")
+	session.Values["userID"]=userID
+	session.Save(c.Request,c.Writer)
+	c.Redirect(http.StatusSeeOther,"/home")
+
 
 }
 
@@ -98,10 +122,19 @@ func PostSignup(c *gin.Context) {
 //database things end
 
 func Admin(c *gin.Context) {
+	c.Writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
+	ok := AdminLoged(c)
+	if ok{
+		c.Redirect(303,"/wadmin")
+		return
+	}
+
 	c.HTML(http.StatusOK, "admin.html", nil)
 }
 
 func PostAdmin(c *gin.Context) {
+
 	Fusername := c.Request.FormValue("username")
 	Fpassword := c.Request.FormValue("password")
 
@@ -110,7 +143,10 @@ func PostAdmin(c *gin.Context) {
 		c.Redirect(303, "/admin")
 		return
 	}
-
+	session,_ := Store.Get(c.Request,"session")
+	session.Values["userID"]=Fusername
+	session.Save(c.Request,c.Writer)
+	c.Redirect(http.StatusSeeOther,"/home")
 	// c.HTML(200,"welcomeadmin.html",nil)
 
 	c.Redirect(303, "/wadmin")
@@ -118,6 +154,14 @@ func PostAdmin(c *gin.Context) {
 }
 
 func Wadmin(c *gin.Context) {
+	c.Writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
+	ok := AdminLoged(c)
+	if !ok{
+		c.Redirect(303,"/admin")
+		return
+	}
+
 	var user []Users
 	// //var usersnew
 
@@ -145,7 +189,12 @@ func Wadmin(c *gin.Context) {
 }
 
 func Home(c *gin.Context) {
-
+	c.Writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	ok := UserLoged(c)
+	if !ok{
+		c.Redirect(303,"/login")
+		return
+	}
 	c.HTML(http.StatusOK, "welcomeuser.html", nil)
 }
 
@@ -179,11 +228,10 @@ func UpdateUser(c *gin.Context) {
 	c.Redirect(303, "/wadmin")
 }
 
-
 func CreateUser(c *gin.Context) {
 	var user []Users
 	var status bool = true
-	
+
 	FusernameN := c.Request.FormValue("username")
 	Fpassword := c.Request.FormValue("password")
 
@@ -214,9 +262,59 @@ func CreateUser(c *gin.Context) {
 
 
 
+func IndexHandler (c *gin.Context) {
+	session,_ := Store.Get(c.Request,"session")
+	_,ok := session.Values["userID"]
+	if !ok {
+		c.Redirect(303,"/login")
+		return
+	}
+	c.Redirect(303,"/home")
+}
+
+func AdminLoged ( c *gin.Context)bool {
+	session,_ := Store.Get(c.Request,"session")
+	_,ok := session.Values["userID"]
+	if !ok {
+		//c.Redirect(303,"/admin")
+		return ok 
+	}
+	//c.Redirect(303,"/wadmin")
+	return true
+}
+func UserLoged ( c *gin.Context)bool {
+	session,_ := Store.Get(c.Request,"session")
+	_,ok := session.Values["userID"]
+	if !ok {
+		//c.Redirect(303,"/admin")
+		return ok 
+	}
+	//c.Redirect(303,"/wadmin")
+	return true
+}
+
+
+
+func LogoutAdmin(c *gin.Context) {
+
+	cookie, err := c.Request.Cookie("session")
+	if err != nil {
+		c.Redirect(303, "/admin")
+	}
+	c.SetCookie("session", "", -1, "/", "localhost", false, false)
+	_ = cookie
+	c.Redirect(http.StatusSeeOther, "/admin")
+}
+
 //cache memory clearing
-func ClearCache(w gin.ResponseWriter) {
+func ClearCache() http.ResponseWriter {
+	var w http.ResponseWriter
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
+	return w
+}
+
+func Cache (c *gin.Context){
+	c.Writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 }

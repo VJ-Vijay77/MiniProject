@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+
 	route := gin.Default()
 
 	database.InitDB()
@@ -18,16 +19,17 @@ func main() {
 	route.GET("/login", routes.Login)
 	route.POST("/login", routes.PostLogin)
 	route.GET("/logout", routes.Logout)
+	route.GET("/logoutadmin", routes.LogoutAdmin)
 	route.GET("/signup", routes.Signup)
 	route.POST("/signup", routes.PostSignup)
 	route.GET("/admin", routes.Admin)
 	route.POST("/admin", routes.PostAdmin)
 	route.GET("/wadmin", routes.Wadmin)
 	route.GET("/home", routes.Home)
-	route.GET("/delete/:name",routes.DeleteUser)
-	route.POST("/update/:name",routes.UpdateUser)
-	route.POST("/create",routes.CreateUser)
-	
+	route.GET("/delete/:name", routes.DeleteUser)
+	route.POST("/update/:name", routes.UpdateUser)
+	route.POST("/create", routes.CreateUser)
+	route.GET("/", routes.IndexHandler)
 	
 
 	route.Run(":8080")

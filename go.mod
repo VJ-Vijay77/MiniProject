@@ -9,7 +9,12 @@ require (
 )
 
 require (
+	github.com/alexedwards/scs v1.4.1 // indirect
+	github.com/alexedwards/scs/v2 v2.5.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/sessions v1.2.1 // indirect
 	tawesoft.co.uk/go/dialog v0.0.0-20201103210221-4175697d086f // indirect
 )
 
