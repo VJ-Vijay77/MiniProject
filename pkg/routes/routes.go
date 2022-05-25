@@ -22,6 +22,8 @@ type Users struct {
 
 
 func Login(c *gin.Context) {
+	c.Writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	ok := UserLoged(c)
 	if ok{
 		c.Redirect(303,"/home")
@@ -32,6 +34,7 @@ func Login(c *gin.Context) {
 }
 
 func PostLogin(c *gin.Context) {
+	c.Writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	var user []Users
 	var status bool
@@ -143,8 +146,8 @@ func PostAdmin(c *gin.Context) {
 		c.Redirect(303, "/admin")
 		return
 	}
-	session,_ := Store.Get(c.Request,"session")
-	session.Values["userID"]=Fusername
+	session,_ := Store.Get(c.Request,"adminsession")
+	session.Values["adminID"]=Fusername
 	session.Save(c.Request,c.Writer)
 	c.Redirect(http.StatusSeeOther,"/home")
 	// c.HTML(200,"welcomeadmin.html",nil)
@@ -273,8 +276,8 @@ func IndexHandler (c *gin.Context) {
 }
 
 func AdminLoged ( c *gin.Context)bool {
-	session,_ := Store.Get(c.Request,"session")
-	_,ok := session.Values["userID"]
+	session,_ := Store.Get(c.Request,"adminsession")
+	_,ok := session.Values["adminID"]
 	if !ok {
 		//c.Redirect(303,"/admin")
 		return ok 
@@ -297,11 +300,11 @@ func UserLoged ( c *gin.Context)bool {
 
 func LogoutAdmin(c *gin.Context) {
 
-	cookie, err := c.Request.Cookie("session")
+	cookie, err := c.Request.Cookie("adminsession")
 	if err != nil {
 		c.Redirect(303, "/admin")
 	}
-	c.SetCookie("session", "", -1, "/", "localhost", false, false)
+	c.SetCookie("adminsession", "", -1, "/", "localhost", false, false)
 	_ = cookie
 	c.Redirect(http.StatusSeeOther, "/admin")
 }
